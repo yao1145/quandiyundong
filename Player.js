@@ -24,7 +24,7 @@ class Player {
         this.locktime = 5000;
         
         // 夺旗模式回家倒计时相关属性
-        this.homeTimeLimit = 20000; // 20秒时间限制
+        this.homeTimeLimit = 15000; // 15秒时间限制
         this.homeStartTime = null; // 离家开始时间
         this.isAtHome = true; // 是否在初始位置
         this.homeCountdownPaused = false; // 回家倒计时是否暂停
@@ -398,7 +398,7 @@ class Player {
 
     // 检查是否在初始位置（家）
     checkIfAtHome() {
-        const homeRadius = 30; // 初始位置的有效半径
+        const homeRadius = 20; // 初始位置的有效半径
         const distance = Math.sqrt(
             Math.pow(this.x - this.startX, 2) + 
             Math.pow(this.y - this.startY, 2)

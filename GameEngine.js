@@ -280,7 +280,9 @@ class GameEngine {
         this.dynamicNeedsUpdate = true;
 
         // 碰撞检测
-        this.checkCollisions();
+        if (this.gameMode !== "survival"){
+            this.checkCollisions();
+        }
 
         // 检测圈地
         let territoryChanged = false;

@@ -123,8 +123,8 @@ class ItemManager {
         if (isValidPosition) {
             // 定义道具类型和对应的权重
             const itemWeights = [
-                { type: 'speed', weight: 50 },   // 50% 概率
-                { type: 'length', weight: 20 },  // 20% 概率
+                { type: 'speed', weight: 40 },   // 40% 概率
+                { type: 'length', weight: 30 },  // 30% 概率
                 { type: 'shield', weight: 30 }   // 30% 概率
             ];
 

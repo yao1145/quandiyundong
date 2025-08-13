@@ -448,6 +448,7 @@ class SurvivalManager {
                         // 在生存模式下，玩家死亡后自动获得3秒护盾
                         if (window.gameEngine && window.gameEngine.gameMode === 'survival') {
                             player.activateShield(3000);
+                            console.log('领土碰撞');
                         }
                         break;
                     }
