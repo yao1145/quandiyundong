@@ -314,8 +314,25 @@ class InputHandler {
             this.updatePlayerMovement();
         }
         
+        // ESC键直接退出游戏，关闭HTML页面
         if (e.code === 'Escape') {
-            this.handlePauseToggle();
+            window.close();
+            return;
+        }
+        
+        // 空格键暂停/继续游戏
+        if (e.code === 'Space') {
+            e.preventDefault(); // 防止页面滚动
+            if (this.gameEngine.gameState === 'playing') {
+                if (typeof pauseGame === 'function') {
+                    pauseGame();
+                }
+            } else if (this.gameEngine.gameState === 'paused') {
+                if (typeof resumeGame === 'function') {
+                    resumeGame();
+                }
+            }
+            return;
         }
     }
 

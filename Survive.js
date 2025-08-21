@@ -40,9 +40,10 @@ class AIEnemy {
                 this.state = 'wander';
                 this.stateChangeTime = 0;
             } else {
-                // 在avoiding状态下保持当前方向移动
-                this.x += Math.cos(this.direction) * this.speed;
-                this.y += Math.sin(this.direction) * this.speed;
+                // 在avoiding状态下保持当前方向移动，速度与物理帧频率无关
+                const normalizedSpeed = this.speed * (deltaTime / 20); // 基于20ms的标准帧时间
+                this.x += Math.cos(this.direction) * normalizedSpeed;
+                this.y += Math.sin(this.direction) * normalizedSpeed;
             }
         } else {
             // 寻找最近的活着的玩家
@@ -99,9 +100,12 @@ class AIEnemy {
             // 动态调整速度，距离越近速度越快
             const speedMultiplier = Math.min(2.0, Math.max(1.0, this.detectionRadius / distance));
             const currentSpeed = this.speed * speedMultiplier;
+            
+            // 使移动速度与物理帧频率无关，保持恒定
+            const normalizedSpeed = currentSpeed * (deltaTime / 20); // 基于20ms的标准帧时间
 
-            this.x += (dx / distance) * currentSpeed;
-            this.y += (dy / distance) * currentSpeed;
+            this.x += (dx / distance) * normalizedSpeed;
+            this.y += (dy / distance) * normalizedSpeed;
         }
     }
 
@@ -112,8 +116,10 @@ class AIEnemy {
             this.stateChangeTime = 0;
         }
 
-        this.x += Math.cos(this.direction) * this.speed * 0.5;
-        this.y += Math.sin(this.direction) * this.speed * 0.5;
+        // 使移动速度与物理帧频率无关，保持恒定
+        const normalizedSpeed = this.speed * 0.5 * (deltaTime / 20); // 基于20ms的标准帧时间
+        this.x += Math.cos(this.direction) * normalizedSpeed;
+        this.y += Math.sin(this.direction) * normalizedSpeed;
     }
 
     constrainToBounds() {

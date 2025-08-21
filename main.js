@@ -106,16 +106,8 @@ function hideOverlays() {
 
 // 键盘事件处理
 document.addEventListener('keydown', function(e) {
-    // ESC键处理
-    if (e.code === 'Escape') {
-        if (gameEngine) {
-            if (gameEngine.gameState === 'playing') {
-                pauseGame();
-            } else if (gameEngine.gameState === 'paused') {
-                resumeGame();
-            }
-        }
-    }
+    // ESC键和空格键的处理已经移到InputHandler.js中
+    // 这里不再重复处理
 });
 
 // 防止页面滚动

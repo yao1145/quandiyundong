@@ -20,7 +20,7 @@ class GameEngine {
         this.countdownActive = false; // 倒计时是否激活
 
         // 物理帧相关设置
-        this.PHYSICS_FPS = 50; // 固定物理帧率
+        this.PHYSICS_FPS = 60; // 固定物理帧率
         this.PHYSICS_TIMESTEP = 1000 / this.PHYSICS_FPS; // 每个物理帧的时间（毫秒）
         this.MAX_FRAME_SKIP = 5; // 最大跳帧数，防止死循环
         this.accumulator = 0; // 时间累积器
@@ -231,7 +231,7 @@ class GameEngine {
 
         // 每隔一定帧数清理一次过期缓存
         this.frameCount++;
-        if (this.frameCount % 50 === 0) { // 例如，每50帧清理一次
+        if (this.frameCount % this.PHYSICS_FPS === 0) { // 例如，每60帧清理一次
             this.renderer.cleanupExpiredCaches();
         }
 
@@ -241,7 +241,7 @@ class GameEngine {
     // 固定时间步长的更新函数
     fixedUpdate(deltaTime) {
         this.timer += 1;
-        if (this.timer % 100 === 0) { // 调整为物理帧的倍数 (50fps * 2 = 120)
+        if (this.timer % (2*this.PHYSICS_FPS) === 0) { // 调整为物理帧的倍数 (60fps * 2 = 120)
             this.timer = 0;
         }
 
