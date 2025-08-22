@@ -52,7 +52,7 @@ class Flag {
     }
 
     // 获取是否需要重绘
-    needsRedraw(players) {
+    redraw(players) {
         return this.needsRedraw || this.hasStateChanged(players);
     }
 
@@ -293,7 +293,7 @@ class FlagManager {
     render(ctx, players) {
         this.flags.forEach((flag, index) => {
             // 检查是否需要更新缓存
-            if (flag.needsRedraw(players) || !this.flagCaches.has(index)) {
+            if (flag.redraw(players) || !this.flagCaches.has(index)) {
                 // 创建或更新缓存
                 const cache = this.createFlagCache(flag, players);
                 this.flagCaches.set(index, cache);
@@ -329,12 +329,12 @@ class FlagManager {
 
                 if (collisionType === 'head-collision') {
                     // 头部碰撞：两人同时死亡
-                    player.die();
-                    otherPlayer.die();
+                    player.die('与玩家头部碰撞');
+                    otherPlayer.die('与玩家头部碰撞');
                     break;
                 } else if (collisionType === 'trail-collision') {
                     // 轨迹碰撞：碰撞者死亡，被碰撞者杀死对手
-                    player.die();
+                    player.die('碰撞到玩家轨迹');
                     break;
                 }
 
@@ -342,7 +342,7 @@ class FlagManager {
                 const otherTerritories = territory.getPlayerTerritories(otherPlayer.id);
                 if (!player.canEnterEnemyTerritory()) {
                     if (player.checkCollisionWithTerritory(otherTerritories)) {
-                        player.die();
+                        player.die('碰撞到玩家领土');
                         break;
                     }
                 }

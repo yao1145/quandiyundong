@@ -395,7 +395,7 @@ class SurvivalManager {
                     
                     // 如果玩家有护盾，则不死亡
                     if (!player.hasShield()) {
-                        player.die();
+                        player.die('被AI敌人碰撞');
                         // 在生存模式下，玩家死亡后自动获得3秒护盾
                         if (window.gameEngine && window.gameEngine.gameMode === 'survival') {
                             player.activateShield(this.shieldtime);
@@ -421,8 +421,8 @@ class SurvivalManager {
 
                 if (collisionType === 'head-collision') {
                     // 头部碰撞：两人同时死亡
-                    player.die();
-                    otherPlayer.die();
+                    player.die('与玩家头部碰撞');
+                    otherPlayer.die('与玩家头部碰撞');
                     // 在生存模式下，玩家死亡后自动获得3秒护盾
                     if (window.gameEngine && window.gameEngine.gameMode === 'survival') {
                         player.activateShield(this.shieldtime);
@@ -431,7 +431,7 @@ class SurvivalManager {
                     break;
                 } else if (collisionType === 'trail-collision') {
                     // 轨迹碰撞：碰撞者死亡，被碰撞者杀死对手
-                    otherPlayer.die();
+                    otherPlayer.die('碰撞到玩家轨迹');
                     // 在生存模式下，玩家死亡后自动获得3秒护盾
                     if (window.gameEngine && window.gameEngine.gameMode === 'survival') {
                         otherPlayer.activateShield(this.shieldtime);
@@ -443,11 +443,10 @@ class SurvivalManager {
                 const otherTerritories = territory.getPlayerTerritories(otherPlayer.id);
                 if (!player.canEnterEnemyTerritory()) {
                     if (player.checkCollisionWithTerritory(otherTerritories)) {
-                        player.die();
+                        player.die('碰撞到玩家领土');
                         // 在生存模式下，玩家死亡后自动获得3秒护盾
                         if (window.gameEngine && window.gameEngine.gameMode === 'survival') {
                             player.activateShield(this.shieldtime);
-                            console.log('领土碰撞');
                         }
                         break;
                     }
@@ -481,6 +480,7 @@ class SurvivalManager {
         this.maxEnemies = setting.maxEnemies;
         this.spawnInterval = setting.interval;
         this.AIspeed = Config.PLAYER_DEFAULTS.AIspeed;
+        this.shieldtime = Config.PLAYER_DEFAULTS.deathshieldtime;
         // 更新现有敌人的速度
         this.aiEnemies.forEach(enemy => {
             enemy.speed = this.AIspeed * this.difficultyMultiplier;

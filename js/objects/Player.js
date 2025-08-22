@@ -468,7 +468,8 @@ class Player {
         }
     }
 
-    die() {
+    die(reason = '未知原因') {
+        console.log(`玩家 ${this.id} 死亡，原因: ${reason}`);
         this.lives--;
         if (this.lives > 0) {
             if (gameEngine.gameMode === 'infinite') {

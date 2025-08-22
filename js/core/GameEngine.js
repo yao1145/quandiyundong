@@ -46,8 +46,6 @@ class GameEngine {
         this.flagManager = new FlagManager(this.width, this.height);
         this.survivalManager = new SurvivalManager(this.width, this.height);
         this.uiUpdater = new UIManager(this);
-
-
     }
 
     init(canvas) {
@@ -174,6 +172,12 @@ class GameEngine {
         this.territory.reset();
         this.itemManager.reset();
         this.timer = 0;
+        
+        // 清空领土离屏画布
+        if (this.territoryCtx) {
+            this.territoryCtx.clearRect(0, 0, this.width, this.height);
+        }
+        this.territoryChanged = true;
 
         this.gameLoop();
     }
@@ -311,20 +315,20 @@ class GameEngine {
 
                 if (player.checkCollisionWithTrail(otherPlayer.trail, otherPlayer) === 'head-collision') {
                     if (this.gameMode === 'explore') {
-                        player.die();
-                        otherPlayer.die();
+                        player.die('与玩家头部碰撞');
+                        otherPlayer.die('与玩家头部碰撞');
                         break;
                     } else if (this.gameMode === 'fight' || this.gameMode === 'infinite') {
-                        otherPlayer.die();
-                        player.die();
+                        otherPlayer.die('与玩家头部碰撞');
+                        player.die('与玩家头部碰撞');
                         break;
                     }
                 } else if (player.checkCollisionWithTrail(otherPlayer.trail, otherPlayer) === 'trail-collision') {
                     if (this.gameMode === 'explore') {
-                        player.die();
+                        player.die('碰撞到玩家轨迹');
                         break
                     } else if (this.gameMode === 'fight' || this.gameMode === 'infinite') {
-                        otherPlayer.die();
+                        otherPlayer.die('碰撞到玩家轨迹');
                         break;
                     }
                 }
@@ -333,7 +337,7 @@ class GameEngine {
                 const otherTerritories = this.territory.getPlayerTerritories(otherPlayer.id);
                 if (!player.canEnterEnemyTerritory()) {
                     if (player.checkCollisionWithTerritory(otherTerritories)) {
-                        player.die();
+                        player.die('碰撞到玩家领土');
                         break;
                     }
                 }
