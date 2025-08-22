@@ -1,28 +1,28 @@
 class GameEngine {
     constructor() {
-        this.width = 1200;
-        this.height = 600;
+        this.width = Config.CANVAS.canvas.width;
+        this.height = Config.CANVAS.canvas.height;
         this.players = [];
         this.territory = new Territory();
         this.gameState = 'menu'; 
+        this.gameMode = 'explore';
         this.difficulty = 'medium';
         this.gameTime = 0;
-        this.maxGameTime = 120000; // 2分钟
+        this.maxGameTime = Config.DIFFICULTY_LEVELS.medium.maxTime; 
         this.lastUpdate = 0;
-        this.P1_startX = 0.15 * this.width;
-        this.P1_startY = 0.5 * this.height;
-        this.P2_startX = 0.85 * this.width;
-        this.P2_startY = 0.5 * this.height;
-        this.gameMode = 'explore';
+        this.P1_startX = Config.CANVAS.P1_startpoint.x * this.width;
+        this.P1_startY = Config.CANVAS.P1_startpoint.y * this.height;
+        this.P2_startX = Config.CANVAS.P2_startpoint.x * this.width;
+        this.P2_startY = Config.CANVAS.P2_startpoint.y * this.height;
 
         // 倒计时相关
         this.countdown = 0; 
         this.countdownActive = false; 
 
         // 物理帧相关设置
-        this.PHYSICS_FPS = 60; // 固定物理帧率
+        this.PHYSICS_FPS = Config.PHYSICS_SETTINGS.FPS; // 固定物理帧率
         this.PHYSICS_TIMESTEP = 1000 / this.PHYSICS_FPS; 
-        this.MAX_FRAME_SKIP = 5; 
+        this.MAX_FRAME_SKIP = Config.PHYSICS_SETTINGS.MAX_FRAME_SKIP; 
         this.accumulator = 0; 
         this.currentTime = 0;
         this.frameCount = 0;
@@ -44,7 +44,8 @@ class GameEngine {
         // 其他相关
         this.flagManager = new FlagManager(this.width, this.height);
         this.survivalManager = new SurvivalManager(this.width, this.height);
-        this.uiUpdater = new UIUpdater(this);
+        this.uiUpdater = new UIManager(this);
+
         
     }
 
@@ -73,18 +74,18 @@ class GameEngine {
 
         // 创建玩家
         this.players = [
-            new Player(1, this.P1_startX, this.P1_startY, '#E6194B', {
-                up: 'KeyW',
-                down: 'KeyS',
-                left: 'KeyA',
-                right: 'KeyD',
+            new Player(1, this.P1_startX, this.P1_startY, Config.UI_STYLES.playerColors.player1, {
+                up: Config.KEY_BINDINGS.player1.up,
+                down: Config.KEY_BINDINGS.player1.down,
+                left: Config.KEY_BINDINGS.player1.left,
+                right: Config.KEY_BINDINGS.player1.right,
                 startX: this.P1_startX
             }, this.canvas),
-            new Player(2, this.P2_startX, this.P2_startY, '#0047AB', {
-                up: 'ArrowUp',
-                down: 'ArrowDown',
-                left: 'ArrowLeft',
-                right: 'ArrowRight',
+            new Player(2, this.P2_startX, this.P2_startY, Config.UI_STYLES.playerColors.player2, {
+                up: Config.KEY_BINDINGS.player2.up,
+                down: Config.KEY_BINDINGS.player2.down,
+                left: Config.KEY_BINDINGS.player2.left,
+                right: Config.KEY_BINDINGS.player2.right,
                 startX: this.P2_startX
             }, this.canvas)
         ];
@@ -95,13 +96,7 @@ class GameEngine {
 
     setgamemode(mode) {
         this.gameMode = mode;
-        const settings = {
-            explore: { lives: 1 },
-            fight: { lives: 3 },
-            infinite: { lives: 2 },
-            survival: { lives: 3 },
-            capture: { lives: 1 }
-        };
+        const settings = Config.GAME_MODES;
         const setting = settings[mode];
         if (this.players) {
             this.players.forEach(player => {
@@ -119,13 +114,8 @@ class GameEngine {
 
     setDifficulty(level) {
         this.difficulty = level;
-        const settings = {
-            slow: { speed: 2.5, maxTime: 120000, Length: 400},
-            medium: { speed: 3.5, maxTime: 100000, Length: 350},
-            fast: { speed: 4, maxTime: 80000, Length: 300 },
-            ultra: { speed: 6, maxTime: 80000, Length: 250 }
-        };
 
+        const settings = Config.DIFFICULTY_LEVELS;
         const setting = settings[level];
         this.maxGameTime = setting.maxTime;
 
@@ -133,7 +123,7 @@ class GameEngine {
             this.players.forEach(player => {
                 player.speed = setting.speed;
                 player.trailLength = setting.Length;
-                player.standardistant = 2;
+                player.standarddistance = Config.PLAYER_DEFAULTS.standarddistance;
             });
         }
         this.staticNeedsUpdate = true; // 难度改变时需要更新静态元素

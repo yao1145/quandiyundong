@@ -1,14 +1,4 @@
 class ItemManager {
-    isOverlappingWithFlags(x, y, radius) {
-        if (!this.flagManager || !this.flagManager.flags) return false;
-        for (const flag of this.flagManager.flags) {
-            const dist = Math.sqrt(Math.pow(x - flag.x, 2) + Math.pow(y - flag.y, 2));
-            if (dist < flag.size + radius) { // flag.size 是旗帜的半径
-                return true;
-            }
-        }
-        return false;
-    }
     constructor(canvas, flagManager) {
         this.canvas = canvas;
         this.flagManager = flagManager;
@@ -16,12 +6,12 @@ class ItemManager {
         this.obstacles = [];
         this.initialBarriers = [];
         this.spawnTimer = 0;
-        this.itemSpawnInterval = 2000; // 2秒生成一个道具
-        this.obstacleSpawnInterval = 5000; // 5秒生成一个障碍物
+        this.itemSpawnInterval = Config.ITEM_MANAGER_SETTINGS.itemSpawnInterval; // 2秒生成一个道具
+        this.obstacleSpawnInterval = Config.ITEM_MANAGER_SETTINGS.obstacleSpawnInterval; // 5秒生成一个障碍物
         this.lastItemSpawn = 0;
         this.lastObstacleSpawn = 0;
         // 初始栏杆相关属性
-        this.initialBarrierDuration = 12000; // 12秒
+        this.initialBarrierDuration = Config.ITEM_MANAGER_SETTINGS.initialBarrierDuration; // 12秒
         this.initialBarrierStartTime = Date.now();
         this.initialBarriersCreated = false;
         this.pauseStartTime = null; // 用于记录暂停开始时间
@@ -77,8 +67,9 @@ class ItemManager {
         if (this.initialBarriersCreated) return;
 
         // 计算地图中间的X坐标
-        const centerX = this.canvas.width * 0.35;
-        const centerY = this.canvas.width * 0.65;
+        const centerX = this.canvas.width * Config.ITEM_MANAGER_SETTINGS.initialBarrierX;
+        const centerY = this.canvas.width * Config.ITEM_MANAGER_SETTINGS.initialBarrierY;
+
         const barrierWidth = 40;
         const barrierHeight = 40;
 
@@ -123,9 +114,9 @@ class ItemManager {
         if (isValidPosition) {
             // 定义道具类型和对应的权重
             const itemWeights = [
-                { type: 'speed', weight: 40 },   // 40% 概率
-                { type: 'length', weight: 30 },  // 30% 概率
-                { type: 'shield', weight: 30 }   // 30% 概率
+                { type: 'speed', weight: Config.ITEM_MANAGER_SETTINGS.powerUp.speed.weight },   
+                { type: 'length', weight: Config.ITEM_MANAGER_SETTINGS.powerUp.length.weight },  
+                { type: 'shield', weight: Config.ITEM_MANAGER_SETTINGS.powerUp.shield.weight }
             ];
 
             // 计算总权重
@@ -251,8 +242,8 @@ class ItemManager {
             return false;
         };
 
-        const centerX = this.canvas.width * 0.35;
-        const centerX2 = this.canvas.width * 0.65;
+        const centerX = this.canvas.width * Config.ITEM_MANAGER_SETTINGS.initialBarrierX;
+        const centerX2 = this.canvas.width * Config.ITEM_MANAGER_SETTINGS.initialBarrierY;
         const barrierarea = 50;
 
         // 检查是否在任一初始栏杆的X范围内
@@ -262,6 +253,17 @@ class ItemManager {
         if (distanceP1 < barrierarea || distanceP2 < barrierarea) {
             return true;
         };
+        return false;
+    }
+
+    isOverlappingWithFlags(x, y, radius) {
+        if (!this.flagManager || !this.flagManager.flags) return false;
+        for (const flag of this.flagManager.flags) {
+            const dist = Math.sqrt(Math.pow(x - flag.x, 2) + Math.pow(y - flag.y, 2));
+            if (dist < flag.size + radius) { // flag.size 是旗帜的半径
+                return true;
+            }
+        }
         return false;
     }
 
@@ -355,12 +357,12 @@ class ItemManager {
 
         // 清理超时道具（10秒后消失）
         this.items = this.items.filter(item =>
-            currentTime - item.spawnTime < 10000
+            currentTime - item.spawnTime < Config.ITEM_MANAGER_SETTINGS.itemTimeout
         );
 
         // 限制障碍物数量（最多10个集群，假设平均每个集群3个，限制到30个）
-        if (this.obstacles.length > 30) {
-            this.obstacles.splice(0, this.obstacles.length - 30);
+        if (this.obstacles.length > Config.ITEM_MANAGER_SETTINGS.maxObstacles) {
+            this.obstacles.splice(0, this.obstacles.length - Config.ITEM_MANAGER_SETTINGS.maxObstacles);
         }
     }
 
@@ -381,27 +383,27 @@ class PowerUpItem {
         this.x = x;
         this.y = y;
         this.type = type; // 'speed' 或 'length'
-        this.radius = 15;
+        this.radius = Config.ITEM_MANAGER_SETTINGS.powerUp.radius;
         this.spawnTime = Date.now();
         this.pulseTimer = 0;
         this.pulseScale = 1;
-        this.addLength = 100;
+        this.addLength = Config.ITEM_MANAGER_SETTINGS.powerUp.length.addLength;
 
         switch (type) {
             case 'speed':
-                this.color = '#00ff00';
+                this.color = Config.ITEM_MANAGER_SETTINGS.powerUp.speed.color;
                 this.effect = 'speed';
-                this.duration = 5000;
+                this.duration = Config.ITEM_MANAGER_SETTINGS.powerUp.speed.duration;
                 break;
             case 'length':
-                this.color = '#ffff00';
+                this.color = Config.ITEM_MANAGER_SETTINGS.powerUp.length.color;
                 this.effect = 'length';
-                this.duration = 8000;
+                this.duration = Config.ITEM_MANAGER_SETTINGS.powerUp.length.duration;
                 break;
             case 'shield':
-                this.color = '#00ffff';
+                this.color = Config.ITEM_MANAGER_SETTINGS.powerUp.shield.color;
                 this.effect = 'shield';
-                this.duration = 10000;
+                this.duration = Config.ITEM_MANAGER_SETTINGS.powerUp.shield.duration;
                 break;
         }
     }
@@ -421,7 +423,7 @@ class PowerUpItem {
         switch (this.type) {
             case 'speed':
                 // 加速效果，持续5秒
-                player.applySpeedBoost(1.5, 5000);
+                player.applySpeedBoost(1.5, Config.ITEM_MANAGER_SETTINGS.powerUp.speed.duration);
                 break;
             case 'length':
                 // 增加长度
@@ -438,8 +440,8 @@ class Barrier {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = 40;
-        this.height = 40;
+        this.width = Config.ITEM_MANAGER_SETTINGS.barrier.width;
+        this.height = Config.ITEM_MANAGER_SETTINGS.barrier.height;
         this.spawnTime = Date.now();
     }
 
@@ -465,7 +467,7 @@ class InitialBarrier {
         this.width = width;
         this.height = height;
         this.spawnTime = Date.now();
-        this.duration = 12000; // 12秒，与ItemManager中的initialBarrierDuration保持一致
+        this.duration = Config.ITEM_MANAGER_SETTINGS.initialBarrierDuration; // 12秒，与ItemManager中的initialBarrierDuration保持一致
     }
 
     checkCollision(playerX, playerY, playerRadius) {

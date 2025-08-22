@@ -640,7 +640,6 @@ body {
     pointer-events: none;
 }
 
-
 .shield-countdown, .barrier-countdown {
     position: absolute;
     background: linear-gradient(135deg, rgba(0, 30, 60, 0.95), rgba(0, 50, 100, 0.95));
@@ -790,7 +789,6 @@ body {
     }
 }
 
-
 #gameCanvas {
     border: 3px solid rgba(100, 200, 255, 0.5);
     border-radius: 15px;
@@ -865,65 +863,6 @@ body {
     margin-bottom: 30px;
     text-shadow: 0 0 5px rgba(160, 196, 255, 0.3);
     white-space: pre-line;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .menu-container, .rules-container, .pause-container, .gameover-container {
-        margin: 10px;
-        padding: 30px 20px;
-    }
-    
-    .color-picker {
-        gap: 10px;
-    }
-    
-    .color-option {
-        width: 35px;
-        height: 35px;
-    }
-    
-    .menu-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .btn {
-        width: 100%;
-        max-width: 250px;
-    }
-    
-    .score-board {
-        flex-direction: column;
-        gap: 10px;
-    }
-      
-    .game-controls {
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .page {
-        padding: 10px;
-    }
-    
-    .menu-container, .rules-container {
-        padding: 20px 15px;
-    }
-    
-    .game-header {
-        padding: 10px 15px;
-    }
-    
-    .game-container {
-        padding: 10px;
-    }
-    
-    #gameCanvas {
-        max-width: 95vw;
-        max-height: 60vh;
-    }
 }
 
 /* 动画增强 */

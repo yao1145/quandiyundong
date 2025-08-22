@@ -4,16 +4,15 @@ class Player {
         this.id = id;
         this.color = color;
         this.controls = controls;
-        this.size = 8;
-        this.locktime = 5000;
-        this.homeTimeLimit = 15000; // 15秒时间限制
+        this.size = Config.PLAYER_DEFAULTS.size;
+        this.locktime = Config.PLAYER_DEFAULTS.locktime;
+        this.homeTimeLimit = Config.PLAYER_DEFAULTS.homeTimeLimit; // 15秒时间限制
         
         // 初始化所有状态
-        this._initState(x, y, 'full');
+        this.initState(x, y, 'full');
     }
 
-    // 私有方法：统一的状态初始化
-    _initState(x, y, mode = 'full') {
+    initState(x, y, mode = 'full') {
         // 基础位置和状态
         this.x = x;
         this.y = y;
@@ -135,8 +134,8 @@ class Player {
             let dist = Math.sqrt(dx * dx + dy * dy);
 
             // 使用更平滑的轨迹点生成方式
-            while (dist >= this.standardistant) {
-                const ratio = this.standardistant / dist;
+            while (dist >= this.standarddistance) {
+                const ratio = this.standarddistance / dist;
                 const newX = lastPos.x + dx * ratio;
                 const newY = lastPos.y + dy * ratio;
                 
@@ -300,7 +299,7 @@ class Player {
     handleObstacleCollision(obstacle) {
         const playerCenterX = this.x;
         const playerCenterY = this.y;
-        const playerRadius = 5;
+        const playerRadius = Config.PLAYER_DEFAULTS.pushdistance;
 
         // 计算玩家与障碍物各边的距离
         const leftOverlap = (playerCenterX + playerRadius) - obstacle.x;
@@ -349,7 +348,7 @@ class Player {
 
         if (distance > 0) {
             // 计算玩家应该被推开的最小距离
-            const pushDistance = 2 * this.speed; // 碰撞反弹距离
+            const pushDistance = Config.PLAYER_DEFAULTS.pushdistance; // 碰撞反弹距离
 
             // 寻找初始弹射点
             const startdistance = Math.min(Math.abs(barrier.x - this.x), Math.abs(barrier.x + barrier.width - this.x));
@@ -392,16 +391,16 @@ class Player {
         // 设置碰撞效果状态
         this.collisionEffect = {
             active: true,
-            duration: 200, // 效果持续200毫秒
+            duration: Config.UI_STYLES.collisionEffect.duration, // 效果持续时间
             startTime: Date.now(),
-            glowColor: 'rgba(255, 0, 0, 0.7)'
+            glowColor: Config.UI_STYLES.collisionEffect.glowColor
         };
     }
 
     distant(x, y, trail) {
         if (trail.length === 0) {
             this.trail.push({ x: this.x, y: this.y, timestamp: Date.now() });
-            return this.standardistant + 1;
+            return this.standarddistance + 1;
         }
         const lastPoint = trail[trail.length - 1];
         return Math.sqrt(Math.pow(x - lastPoint.x, 2) + Math.pow(y - lastPoint.y, 2));
@@ -409,7 +408,7 @@ class Player {
 
     // 检查是否在初始位置（家）
     checkIfAtHome() {
-        const homeRadius = 20; // 初始位置的有效半径
+        const homeRadius = Config.UI_STYLES.homeRadius; // 初始位置的有效半径
         const distance = Math.sqrt(
             Math.pow(this.x - this.startX, 2) + 
             Math.pow(this.y - this.startY, 2)
@@ -487,7 +486,7 @@ class Player {
 
     diereset(x, y) {
         // 使用统一的状态初始化方法
-        this._initState(x, y, 'death');
+        this.initState(x, y, 'death');
         
         // 死亡重置特有的逻辑
         this.shield = null;
@@ -495,15 +494,13 @@ class Player {
         // 在无限模式下添加5秒封锁时间
         if (window.gameEngine && window.gameEngine.gameMode === 'infinite') {
             this.lockTime = Date.now() + this.locktime; // 5秒封锁时间
-            this.locktime += 2000
+            this.locktime += Config.PLAYER_DEFAULTS.addlocktime;
         }
     }
 
     reset(x, y) {
         // 使用统一的状态初始化方法
-        this._initState(x, y, 'full');
-        
-        // 重置封锁时间
-        this.locktime = 5000;
+        this.initState(x, y, 'full');
+        this.locktime = Config.PLAYER_DEFAULTS.locktime;
     }
 }

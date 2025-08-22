@@ -1,13 +1,13 @@
 class Flag {
-    constructor(x, y, size = 25) {
+    constructor(x, y, size = Config.FLAG_DEFAULTS.size) {
         this.x = x;
         this.y = y;
         this.size = size;
         this.capturedBy = null;
-        this.color = '#FFD700'; // 默认金色
+        this.color = Config.FLAG_DEFAULTS.color; 
         this.captureRadius = size;
-        this._lastState = null; // 用于跟踪状态变化
-        this._needsRedraw = true; // 标记是否需要重绘
+        this.lastState = null; 
+        this.needsRedraw = true; 
     }
 
     isCapturedBy(playerId) {
@@ -17,14 +17,14 @@ class Flag {
     capture(playerId) {
         if (this.capturedBy !== playerId) {
             this.capturedBy = playerId;
-            this._needsRedraw = true; // 标记需要重绘
+            this.needsRedraw = true; 
         }
     }
 
     release() {
         if (this.capturedBy !== null) {
             this.capturedBy = null;
-            this._needsRedraw = true; // 标记需要重绘
+            this.needsRedraw = true; // 标记需要重绘
         }
     }
 
@@ -42,10 +42,10 @@ class Flag {
             displayColor: this.getDisplayColor(players)
         };
         
-        if (!this._lastState || 
-            this._lastState.capturedBy !== currentState.capturedBy ||
-            this._lastState.displayColor !== currentState.displayColor) {
-            this._lastState = currentState;
+        if (!this.lastState || 
+            this.lastState.capturedBy !== currentState.capturedBy ||
+            this.lastState.displayColor !== currentState.displayColor) {
+            this.lastState = currentState;
             return true;
         }
         return false;
@@ -53,12 +53,12 @@ class Flag {
 
     // 获取是否需要重绘
     needsRedraw(players) {
-        return this._needsRedraw || this.hasStateChanged(players);
+        return this.needsRedraw || this.hasStateChanged(players);
     }
 
     // 标记已完成重绘
     markRedrawn() {
-        this._needsRedraw = false;
+        this.needsRedraw = false;
     }
 }
 
@@ -91,21 +91,22 @@ class FlagManager {
     }
 
     generateFlags() {
-        const MIN_DISTANCE_FROM_PLAYER = 300; // 旗帜距离玩家出发点的最小距离
-        const MIN_DISTANCE_BETWEEN_FLAGS = 100; // 旗帜之间的最小距离
+        const MIN_DISTANCE_FROM_PLAYER = Config.FLAG_DEFAULTS.ditance_from_player;
+        const MIN_DISTANCE_BETWEEN_FLAGS = Config.FLAG_DEFAULTS.ditance_between_flags; 
         const MAX_ATTEMPTS = 100; // 尝试生成旗帜位置的最大次数
 
-        const P1_startX = 0.15 * this.gameWidth;
-        const P1_startY = 0.5 * this.gameHeight;
-        const P2_startX = 0.85 * this.gameWidth;
-        const P2_startY = 0.5 * this.gameHeight;
+        const P1_startX = Config.CANVAS.P1_startpoint.x * this.gameWidth;
+        const P1_startY = Config.CANVAS.P1_startpoint.y * this.gameHeight; 
+        const P2_startX = Config.CANVAS.P2_startpoint.x * this.gameWidth;
+        const P2_startY = Config.CANVAS.P2_startpoint.y * this.gameHeight;
 
         const isValidFlagPosition = (x, y) => {
             // 检查与玩家出发点的距离
             const distToP1 = Math.sqrt(Math.pow(x - P1_startX, 2) + Math.pow(y - P1_startY, 2));
             const distToP2 = Math.sqrt(Math.pow(x - P2_startX, 2) + Math.pow(y - P2_startY, 2));
             // 假设flag.size是旗帜的半径，避免区域为以玩家出生点为中心，边长为2*flag.size的正方形
-            const playerSpawnAvoidanceSize = 2 * 25; // 使用默认尺寸作为参考
+            const playerSpawnAvoidanceSize = 2 * Config.FLAG_DEFAULTS.size; // 使用默认尺寸作为参考
+
 
             // 检查与玩家出生点区域的重叠
             if (

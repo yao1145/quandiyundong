@@ -1,4 +1,4 @@
-class UIUpdater {
+class UIManager {
     constructor(gameEngine) {
         this.gameEngine = gameEngine;
     }
