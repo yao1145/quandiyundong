@@ -6,9 +6,8 @@ class Player {
         this.controls = controls;
         this.size = Config.PLAYER_DEFAULTS.size;
         this.locktime = Config.PLAYER_DEFAULTS.locktime;
-        this.homeTimeLimit = Config.PLAYER_DEFAULTS.homeTimeLimit; // 15秒时间限制
+        this.homeTimeLimit = Config.PLAYER_DEFAULTS.homeTimeLimit; 
         
-        // 初始化所有状态
         this.initState(x, y, 'full');
     }
 
@@ -79,7 +78,7 @@ class Player {
                     this.resetHomeCountdown();
                 } else {
                     // 生命值为0，死亡
-                    this.isAlive = false;
+                    this.die('未及时回到出生点');   
                 }
             }
         }
@@ -244,7 +243,7 @@ class Player {
                 }
             }
             // 条件2: 边的起点在测试点水平线的上方，终点在下方或水平线上 (向下穿越)
-            else { // p1.y > point.y
+            else { 
                 if (p2.y <= point.y) {
                     // 计算边的朝向
                     const isLeft = (p2.x - p1.x) * (point.y - p1.y) - (point.x - p1.x) * (p2.y - p1.y);
@@ -486,10 +485,7 @@ class Player {
     }
 
     diereset(x, y) {
-        // 使用统一的状态初始化方法
         this.initState(x, y, 'death');
-        
-        // 死亡重置特有的逻辑
         this.shield = null;
         
         // 在无限模式下添加5秒封锁时间
@@ -500,7 +496,6 @@ class Player {
     }
 
     reset(x, y) {
-        // 使用统一的状态初始化方法
         this.initState(x, y, 'full');
         this.locktime = Config.PLAYER_DEFAULTS.locktime;
     }
