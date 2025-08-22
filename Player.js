@@ -2,32 +2,43 @@ class Player {
     constructor(id, x, y, color, controls, canvas) {
         this.canvas = canvas;
         this.id = id;
+        this.color = color;
+        this.controls = controls;
+        this.size = 8;
+        this.locktime = 5000;
+        this.homeTimeLimit = 15000; // 15秒时间限制
+        
+        // 初始化所有状态
+        this._initState(x, y, 'full');
+    }
+
+    // 私有方法：统一的状态初始化
+    _initState(x, y, mode = 'full') {
+        // 基础位置和状态
         this.x = x;
         this.y = y;
         this.startX = x;
         this.startY = y;
-        this.color = color;
-        this.controls = controls;
         this.trail = [];
         this.isAlive = true;
-        this.territory = [];
-        this.score = 0;
         this.direction = { x: 0, y: 0 };
-        this.size = 8;
         this.isMoving = false;
-        this.shield = null;
         this.lastUpdateTime = 0;
         this.collisionEffect = null;
         this.speedMultiplier = 1;
         this.speedBoostEndTime = null;
-        this.lockTime = null; // 添加封锁时间属性
-        this.locktime = 5000;
+        this.lockTime = null;
+        this.pausedLockTime = null;
         
-        // 夺旗模式回家倒计时相关属性
-        this.homeTimeLimit = 15000; // 15秒时间限制
-        this.homeStartTime = null; // 离家开始时间
-        this.isAtHome = true; // 是否在初始位置
-        this.homeCountdownPaused = false; // 回家倒计时是否暂停
+        // 根据模式决定是否重置额外属性
+        if (mode === 'full') {
+            this.territory = [];
+            this.score = 0;
+            this.shield = null;
+            this.homeStartTime = null;
+            this.isAtHome = true;
+            this.homeCountdownPaused = false;
+        }
     }
 
     fixedUpdate(deltaTime) {
@@ -475,21 +486,12 @@ class Player {
     }
 
     diereset(x, y) {
-        this.x = x;
-        this.y = y;
-        this.startX = x;
-        this.startY = y;
-        this.trail = [];
-        this.isAlive = true;
-        this.direction = { x: 0, y: 0 };
-        this.isMoving = false;
-        this.lastUpdateTime = 0;
-        this.speedMultiplier = 1;
-        this.speedBoostEndTime = null;
+        // 使用统一的状态初始化方法
+        this._initState(x, y, 'death');
+        
+        // 死亡重置特有的逻辑
         this.shield = null;
-        this.collisionEffect = null;
-        this.pausedLockTime = null; // 重置暂停时的封锁时间
-
+        
         // 在无限模式下添加5秒封锁时间
         if (window.gameEngine && window.gameEngine.gameMode === 'infinite') {
             this.lockTime = Date.now() + this.locktime; // 5秒封锁时间
@@ -498,28 +500,10 @@ class Player {
     }
 
     reset(x, y) {
-        this.x = x;
-        this.y = y;
-        this.startX = x;
-        this.startY = y;
-        this.trail = [];
-        this.territory = [];
-        this.score = 0;
-        this.isAlive = true;
-        this.direction = { x: 0, y: 0 };
-        this.isMoving = false;
-        this.speedMultiplier = 1;
-        this.speedBoostEndTime = null;
-        this.shield = null;
-        this.collisionEffect = null;
-        this.lastUpdateTime = 0;
-        this.lockTime = null; // 重置封锁时间
-        this.locktime = 5000;
-        this.pausedLockTime = null; // 重置暂停时的封锁时间
+        // 使用统一的状态初始化方法
+        this._initState(x, y, 'full');
         
-        // 重置夺旗模式回家倒计时
-        this.homeStartTime = null;
-        this.isAtHome = true;
-        this.homeCountdownPaused = false;
+        // 重置封锁时间
+        this.locktime = 5000;
     }
 }
