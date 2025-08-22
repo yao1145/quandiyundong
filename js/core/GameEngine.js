@@ -4,11 +4,11 @@ class GameEngine {
         this.height = Config.CANVAS.canvas.height;
         this.players = [];
         this.territory = new Territory();
-        this.gameState = 'menu'; 
+        this.gameState = 'menu';
         this.gameMode = 'explore';
         this.difficulty = 'medium';
         this.gameTime = 0;
-        this.maxGameTime = Config.DIFFICULTY_LEVELS.medium.maxTime; 
+        this.maxGameTime = Config.DIFFICULTY_LEVELS.medium.maxTime;
         this.lastUpdate = 0;
         this.P1_startX = Config.CANVAS.P1_startpoint.x * this.width;
         this.P1_startY = Config.CANVAS.P1_startpoint.y * this.height;
@@ -16,37 +16,38 @@ class GameEngine {
         this.P2_startY = Config.CANVAS.P2_startpoint.y * this.height;
 
         // 倒计时相关
-        this.countdown = 0; 
-        this.countdownActive = false; 
+        this.countdown = 0;
+        this.countdownActive = false;
 
         // 物理帧相关设置
         this.PHYSICS_FPS = Config.PHYSICS_SETTINGS.FPS; // 固定物理帧率
-        this.PHYSICS_TIMESTEP = 1000 / this.PHYSICS_FPS; 
-        this.MAX_FRAME_SKIP = Config.PHYSICS_SETTINGS.MAX_FRAME_SKIP; 
-        this.accumulator = 0; 
+        this.PHYSICS_TIMESTEP = 1000 / this.PHYSICS_FPS;
+        this.MAX_FRAME_SKIP = Config.PHYSICS_SETTINGS.MAX_FRAME_SKIP;
+        this.accumulator = 0;
         this.currentTime = 0;
         this.frameCount = 0;
         this.lastFpsUpdate = 0;
         this.fps = 0;
 
         // 渲染优化相关(静态)
-        this.renderFrameCount = 0; 
-        this.shouldRenderStatic = true; 
-        this.staticCanvas = null; 
-        this.staticCtx = null; 
-        this.staticNeedsUpdate = true; 
+        this.renderFrameCount = 0;
+        this.shouldRenderStatic = true;
+        this.staticCanvas = null;
+        this.staticCtx = null;
+        this.staticNeedsUpdate = true;
+        this.territoryChanged = false;
 
         // 渲染优化相关(动态)
-        this.dynamicCanvas = null; 
-        this.dynamicCtx = null; 
-        this.dynamicNeedsUpdate = true; 
+        this.dynamicCanvas = null;
+        this.dynamicCtx = null;
+        this.dynamicNeedsUpdate = true;
 
         // 其他相关
         this.flagManager = new FlagManager(this.width, this.height);
         this.survivalManager = new SurvivalManager(this.width, this.height);
         this.uiUpdater = new UIManager(this);
 
-        
+
     }
 
     init(canvas) {
@@ -57,6 +58,13 @@ class GameEngine {
         this.renderer = new Renderer(canvas);
         this.itemManager = new ItemManager(canvas, this.flagManager);
         this.itemManager.init();
+
+        // 创建领土渲染的离屏画布
+        this.territoryCanvas = document.createElement('canvas');
+        this.territoryCanvas.width = this.width;
+        this.territoryCanvas.height = this.height;
+        this.territoryCtx = this.territoryCanvas.getContext('2d');
+        this.territoryRenderer = new Renderer(this.territoryCanvas);
 
         // 创建静态元素的离屏画布
         this.staticCanvas = document.createElement('canvas');
@@ -91,7 +99,7 @@ class GameEngine {
         ];
 
         this.setDifficulty(this.difficulty);
-        
+
     }
 
     setgamemode(mode) {
@@ -183,7 +191,7 @@ class GameEngine {
         const newTime = performance.now();
         const frameTime = Math.min(newTime - this.currentTime, 250); // 限制最大帧时间为250ms
         this.currentTime = newTime;
-        
+
         // 只有在非暂停状态下才累积时间
         if (this.gameState !== 'paused') {
             this.accumulator += frameTime;
@@ -191,10 +199,10 @@ class GameEngine {
 
         // 处理倒计时逻辑
         if (this.gameState === 'countdown') {
-            this.countdown -= frameTime / 1000; 
+            this.countdown -= frameTime / 1000;
             if (this.countdown <= 0) {
                 this.countdownActive = false;
-                this.gameState = 'playing'; 
+                this.gameState = 'playing';
                 this.accumulator = 0; // 重置accumulator以避免速度异常
                 this.itemManager.initialBarrierStartTime = Date.now();
             }
@@ -214,7 +222,7 @@ class GameEngine {
         this.render(interpolation);// 渲染（可变帧率）
         this.updateFPS(); // 更新FPS计数
         this.frameCount++;
-        if (this.frameCount % this.PHYSICS_FPS === 0) { 
+        if (this.frameCount % this.PHYSICS_FPS === 0) {
             this.renderer.cleanupExpiredCaches();// 每隔一定帧数清理一次过期缓存
         }
 
@@ -224,7 +232,7 @@ class GameEngine {
     // 固定时间步长的更新函数
     fixedUpdate(deltaTime) {
         this.timer += 1;
-        if (this.timer % (2 * this.PHYSICS_FPS) === 0) { 
+        if (this.timer % (2 * this.PHYSICS_FPS) === 0) {
             this.timer = 0;
         }
         this.gameTime += deltaTime;
@@ -261,16 +269,15 @@ class GameEngine {
         this.dynamicNeedsUpdate = true;
 
         // 碰撞检测
-        if (this.gameMode !== "survival"){
+        if (this.gameMode !== "survival") {
             this.checkCollisions();
         }
 
         // 检测圈地
-        let territoryChanged = false;
         this.players.forEach(player => {
             const newTerritory = this.territory.detectEnclosure(player);
             if (newTerritory) {
-                territoryChanged = true;
+                this.territoryChanged = true;
                 player.score = this.territory.calculateScore(player.id, this.canvas.width, this.canvas.height);
 
                 // 在无限模式下，检查是否有玩家领土达到60%
@@ -284,11 +291,6 @@ class GameEngine {
                 }
             }
         });
-
-        // 如果领土发生变化，标记静态元素需要更新
-        if (territoryChanged) {
-            this.staticNeedsUpdate = true;
-        }
 
         // 检查游戏结束条件
         const alivePlayers = this.players.filter(p => p.isAlive);
@@ -339,6 +341,19 @@ class GameEngine {
         }
     }
 
+    // 渲染领土
+    renderTerritory() {
+        if (!this.territoryChanged) return;
+        this.territoryCtx.clearRect(0, 0, this.width, this.height);
+        this.players.forEach(player => {
+            const territories = this.territory.getPlayerTerritories(player.id);
+            if (territories && territories.length > 0) {
+                this.territoryRenderer.drawTerritories(territories, player.id, player.color);
+            }
+        });
+        this.territoryChanged = false;
+    }
+
     // 渲染静态元素到离屏画布
     renderStaticElements() {
         // 清空静态画布
@@ -347,14 +362,6 @@ class GameEngine {
         // 绘制生成点
         this.players.forEach(player => {
             this.staticRenderer.drawSpawnPoint(player.startX, this.P1_startY, player.color);
-        });
-
-        // 渲染领土
-        this.players.forEach(player => {
-            const territories = this.territory.getPlayerTerritories(player.id);
-            if (territories && territories.length > 0) {
-                this.staticRenderer.drawTerritories(territories, player.id, player.color);
-            }
         });
 
         // 渲染道具和障碍物
@@ -394,13 +401,15 @@ class GameEngine {
     }
 
     render(interpolation = 0) {
-        this.renderer.clear();   
-        this.ctx.drawImage(this.dynamicCanvas, 0, 0); // 第一层：绘制动态元素        
-        this.ctx.drawImage(this.staticCanvas, 0, 0); // 第二层：绘制静态元素        
+        this.renderer.clear();
+        this.ctx.drawImage(this.territoryCanvas, 0, 0); // 第一层：绘制领土
+        this.renderTerritory();
+        this.ctx.drawImage(this.dynamicCanvas, 0, 0); // 第二层：绘制动态元素        
+        this.ctx.drawImage(this.staticCanvas, 0, 0); // 第三层：绘制静态元素        
         this.renderFrameCount++; // 增加渲染帧计数器
 
         // 判断是否应该更新静态元素（每2帧更新一次，或者有变化时强制更新）
-        this.shouldRenderStatic = (this.renderFrameCount % 2 === 0) || this.staticNeedsUpdate;
+        this.shouldRenderStatic = (this.renderFrameCount % 3 === 0) || this.staticNeedsUpdate;
 
         // 动态元素每帧都更新
         this.shouldRenderDynamic = this.dynamicNeedsUpdate;
@@ -444,7 +453,7 @@ class GameEngine {
             if (this.itemManager) {
                 this.itemManager.pauseStartTime = Date.now();
             }
-            
+
             // 暂停所有玩家的护盾计时和封锁时间
             if (this.players) {
                 this.players.forEach(player => {
@@ -454,13 +463,13 @@ class GameEngine {
                         // 保存暂停开始时间
                         player.shield.pauseStartTime = Date.now();
                     }
-                    
+
                     // 暂停玩家的封锁时间
                     if (player.lockTime && Date.now() < player.lockTime) {
                         // 保存暂停时的剩余封锁时间
                         player.pausedLockTime = player.lockTime - Date.now();
                     }
-                    
+
                     // 暂停夺旗模式回家倒计时
                     if (this.gameMode === 'capture') {
                         player.pauseHomeCountdown();
@@ -473,14 +482,14 @@ class GameEngine {
     resume() {
         if (this.gameState === 'paused') {
             this.gameState = 'playing';
-            
+
             // 调整初始栏杆开始时间，以补偿暂停期间的时间
             if (this.itemManager && this.itemManager.pauseStartTime) {
                 const pauseDuration = Date.now() - this.itemManager.pauseStartTime;
                 this.itemManager.initialBarrierStartTime += pauseDuration;
                 this.itemManager.pauseStartTime = null;
             }
-            
+
             // 恢复所有玩家的护盾计时和封锁时间
             if (this.players) {
                 this.players.forEach(player => {
@@ -493,13 +502,13 @@ class GameEngine {
                         player.shield.pauseStartTime = null;
                         player.shield.pausedRemainingTime = null;
                     }
-                    
+
                     // 恢复玩家的封锁时间
                     if (player.pausedLockTime) {
                         player.lockTime = Date.now() + player.pausedLockTime;
                         player.pausedLockTime = null;
                     }
-                    
+
                     // 恢复夺旗模式回家倒计时
                     if (this.gameMode === 'capture') {
                         player.resumeHomeCountdown();
