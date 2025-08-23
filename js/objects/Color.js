@@ -1,8 +1,8 @@
 class ColorManager {
     constructor() {
         this.selectedColors = {
-            player1: '',
-            player2: ''
+            player1: Config.UI_STYLES.playerColors.player1,
+            player2: Config.UI_STYLES.playerColors.player2
         };
         this.colorHistory = {
             player1: [],
@@ -197,9 +197,12 @@ class ColorManager {
         } else if (harmony.score >= 40) {
             statusText += '一般';
             harmonyFill.style.background = 'linear-gradient(90deg, #ff9a9e, #fecfef)';
-        } else {
+        } else if (harmony.score >= 20) {
             statusText += '较差';
             harmonyFill.style.background = 'linear-gradient(90deg, #ff6b6b, #ee5a24)';
+        } else {
+            statusText += '极差';
+            harmonyFill.style.background = 'linear-gradient(90deg, #ff3b3b, #cc2929)';
         }
         
         harmonyStatus.textContent = statusText;

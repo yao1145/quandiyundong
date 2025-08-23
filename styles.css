@@ -112,21 +112,30 @@ body {
 }
 
 .game-title {
-    font-size: clamp(1.8em, 4vw, 2.5em);
-    color: #64c8ff;
+    font-size: clamp(2.5em, 5vw, 3.5em);
+    background: linear-gradient(45deg, #64c8ff, #ff6bff, #64ffcc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     margin-bottom: 30px;
     text-shadow: 
-        0 0 10px rgba(100, 200, 255, 0.5),
-        0 0 20px rgba(100, 200, 255, 0.3),
-        0 0 30px rgba(100, 200, 255, 0.1);
+        0 0 5px rgba(100, 200, 255, 0.3),
+        0 0 10px rgba(100, 200, 255, 0.2);
     font-weight: bold;
-    letter-spacing: 2px;
-    animation: titleGlow 2s ease-in-out infinite alternate;
+    letter-spacing: 3px;
+    animation: titleGlow 3s ease-in-out infinite alternate;
+    transform: translateZ(0); /* 避免镜像效果 */
 }
 
 @keyframes titleGlow {
-    0% { text-shadow: 0 0 10px rgba(100, 200, 255, 0.5), 0 0 20px rgba(100, 200, 255, 0.3); }
-    100% { text-shadow: 0 0 15px rgba(100, 200, 255, 0.8), 0 0 25px rgba(100, 200, 255, 0.5); }
+    0% { 
+        text-shadow: 0 0 5px rgba(100, 200, 255, 0.3), 0 0 10px rgba(100, 200, 255, 0.2);
+        background-position: 0% 50%;
+    }
+    100% { 
+        text-shadow: 0 0 10px rgba(100, 200, 255, 0.5), 0 0 15px rgba(100, 200, 255, 0.3);
+        background-position: 100% 50%;
+    }
 }
 
 .menu-options {
@@ -149,7 +158,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    margin-bottom: 25px;
+    margin: 20px 40px 25px 40px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .player-color-section {
@@ -235,10 +246,12 @@ body {
     background: rgba(100, 200, 255, 0.2);
     outline: none;
     -webkit-appearance: none;
+    appearance: none;
 }
 
 .color-sliders input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -262,6 +275,7 @@ body {
     background: rgba(15, 25, 45, 0.6);
     border-radius: 10px;
     border: 1px solid rgba(100, 200, 255, 0.2);
+    margin: 0 40px;
 }
 
 .harmony-status {
@@ -380,24 +394,145 @@ body {
     border: 2px solid rgba(100, 200, 255, 0.3);
     border-radius: 15px;
     font-size: clamp(0.9em, 2vw, 1em);
-    background: linear-gradient(145deg, rgba(15, 32, 70, 0.8), rgba(25, 42, 80, 0.9));
+    background: 
+        linear-gradient(145deg, rgba(15, 32, 70, 0.9), rgba(25, 42, 80, 0.95)),
+        radial-gradient(circle at 30% 30%, rgba(100, 200, 255, 0.1) 0%, transparent 50%);
     color: #a0c4ff;
     cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(8px);
     min-width: 150px;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 0 0 5px rgba(100, 200, 255, 0.3);
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 20px rgba(100, 200, 255, 0.1);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* 科幻风格内部光晕效果 */
+#difficultySelect::before, #gamemodeSelect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(100, 200, 255, 0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+/* 自定义下拉箭头 */
+#difficultySelect::-webkit-appearance, #gamemodeSelect::-webkit-appearance {
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+#difficultySelect::after, #gamemodeSelect::after {
+    content: '▼';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64c8ff;
+    font-size: 0.8em;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(100, 200, 255, 0.5);
 }
 
 #difficultySelect:hover, #gamemodeSelect:hover {
     border-color: #64c8ff;
-    box-shadow: 0 0 15px rgba(100, 200, 255, 0.3);
-    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 30px rgba(100, 200, 255, 0.4);
+    transform: translateY(-3px) scale(1.02);
+    color: #ffffff;
+}
+
+#difficultySelect:hover::before, #gamemodeSelect:hover::before {
+    opacity: 1;
+}
+
+#difficultySelect:hover::after, #gamemodeSelect:hover::after {
+    color: #ffffff;
+    transform: translateY(-50%) rotate(180deg);
+    text-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
 }
 
 #difficultySelect:focus, #gamemodeSelect:focus {
     outline: none;
     border-color: #64c8ff;
-    box-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+    box-shadow: 
+        0 0 30px rgba(100, 200, 255, 0.6),
+        inset 0 0 20px rgba(100, 200, 255, 0.1),
+        0 8px 25px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+    color: #FFD700;
+}
+
+#difficultySelect:focus::before, #gamemodeSelect:focus::before {
+    opacity: 1;
+    background: linear-gradient(45deg, transparent, rgba(100, 200, 255, 0.1), transparent);
+    animation: sciFiPulse 2s ease-in-out infinite;
+}
+
+#difficultySelect:focus::after, #gamemodeSelect:focus::after {
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(100, 200, 255, 1);
+}
+
+/* 科幻脉冲动画 */
+@keyframes sciFiPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+/* 下拉选项科幻风格 */
+#difficultySelect option, #gamemodeSelect option {
+    background: linear-gradient(145deg, rgba(15, 32, 70, 0.95), rgba(25, 42, 80, 1));
+    color: #a0c4ff;
+    padding: 10px 15px;
+    border: none;
+    border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+    text-shadow: 0 0 3px rgba(100, 200, 255, 0.3);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+#difficultySelect option:hover, #gamemodeSelect option:hover {
+    background: linear-gradient(145deg, rgba(25, 42, 80, 1), rgba(35, 52, 90, 1));
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(100, 200, 255, 0.6);
+    box-shadow: inset 0 0 15px rgba(100, 200, 255, 0.2);
+}
+
+#difficultySelect option:checked, #gamemodeSelect option:checked {
+    background: linear-gradient(145deg, rgba(30, 60, 114, 0.9), rgba(42, 82, 152, 0.95));
+    color: #FFD700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    border-left: 3px solid #64c8ff;
+    box-shadow: 
+        inset 0 0 20px rgba(100, 200, 255, 0.3),
+        0 0 10px rgba(100, 200, 255, 0.2);
+}
+
+/* 为不同浏览器添加兼容性 */
+#difficultySelect::-moz-focus-inner, #gamemodeSelect::-moz-focus-inner {
+    border: 0;
+    outline: none;
+}
+
+#difficultySelect:-moz-focusring, #gamemodeSelect:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #a0c4ff;
 }
 
 .menu-buttons {
@@ -504,11 +639,11 @@ body {
     background: linear-gradient(145deg, rgba(15, 32, 70, 0.9), rgba(25, 42, 80, 0.95));
     border: 2px solid rgba(100, 200, 255, 0.3);
     border-radius: 25px;
-    padding: 40px;
     max-width: 800px;
     width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 
         0 20px 40px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.1),
@@ -518,7 +653,7 @@ body {
     color: #d6f0ff;
 }
 
-/* Color Selection Custom Scrollbar */
+
 .color-selection-container::-webkit-scrollbar {
     width: 12px;
 }
@@ -540,18 +675,49 @@ body {
 }
 
 .color-selection-container h2 {
-    text-align: center;
-    margin-bottom: 30px;
     color: #64c8ff;
-    text-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
-    font-size: clamp(1.5em, 4vw, 2em);
+    margin: 30px 0 20px 0;
+    text-align: center;
+    font-size: clamp(1.8em, 4.5vw, 2.3em);
+    text-shadow: 0 0 15px rgba(100, 200, 255, 0.7);
+    flex-shrink: 0;
+}
+
+.color-selection-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 40px 20px 40px;
+}
+
+/* Custom Scrollbar for color selection */
+.color-selection-content::-webkit-scrollbar {
+    width: 14px;
+}
+
+.color-selection-content::-webkit-scrollbar-track {
+    background: rgba(15, 32, 70, 0.6);
+    border-radius: 12px;
+}
+
+.color-selection-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(145deg, #2a5298, #1e3c72);
+    border-radius: 12px;
+    border: 2px solid rgba(100, 200, 255, 0.4);
+    box-shadow: 0 0 8px rgba(100, 200, 255, 0.4);
+}
+
+.color-selection-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(145deg, #3d6bb3, #2a5298);
+    box-shadow: 0 0 12px rgba(100, 200, 255, 0.6);
 }
 
 .color-selection-buttons {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-top: 30px;
+    gap: 25px;
+    margin: 25px 0;
+    flex-shrink: 0;
+    padding: 0 20px;
 }
 
 .rules-container h2 {
