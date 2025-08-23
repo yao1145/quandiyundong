@@ -1,7 +1,6 @@
 // 全局变量
 let gameEngine;
 let inputHandler;
-let selectedColor = '#E6194B';
 
 
 // 页面加载完成后初始化
@@ -20,14 +19,10 @@ function initGame() {
 }
 
 function setupEventListeners() {
-    // 颜色选择
-    document.querySelectorAll('.color-option').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedColor = this.dataset.color;
-        });
-    });
+    // 双玩家颜色选择
+    if (typeof colorManager !== 'undefined') {
+        colorManager.setupColorSelection();
+    }
 
     // 难度选择
     document.getElementById('difficultySelect').addEventListener('change', function() {
@@ -38,7 +33,22 @@ function setupEventListeners() {
     document.getElementById('gamemodeSelect').addEventListener('change', function() {
         gameEngine.setgamemode(this.value);
     });
-
+    
+    // 颜色选择页面按钮
+    const colorSelectionBtn = document.getElementById('colorSelectionBtn');
+    if (colorSelectionBtn) {
+        colorSelectionBtn.addEventListener('click', showColorSelection);
+    }
+    
+    const saveColorBtn = document.getElementById('saveColorBtn');
+    if (saveColorBtn) {
+        saveColorBtn.addEventListener('click', saveColorSelection);
+    }
+    
+    const backFromColorBtn = document.getElementById('backFromColorBtn');
+    if (backFromColorBtn) {
+        backFromColorBtn.addEventListener('click', showMainMenu);
+    }
 }
 
 // 页面导航函数
@@ -62,11 +72,28 @@ function showRules() {
     showPage('rulesPage');
 }
 
+function showColorSelection() {
+    showPage('colorSelectionPage');
+    // 重新设置颜色选择器的事件监听器
+    setTimeout(() => {
+        if (typeof colorManager !== 'undefined') {
+            colorManager.setupColorSelection();
+        }
+    }, 100);
+}
+
+function saveColorSelection() {
+    showMainMenu();
+}
+
 function startGame() {
     showPage('gamePage');
     
     // 设置玩家颜色
-    gameEngine.setPlayerColor(1, selectedColor);
+    if (typeof colorManager !== 'undefined') {
+        gameEngine.setPlayerColor(1, colorManager.getPlayerColor(1));
+        gameEngine.setPlayerColor(2, colorManager.getPlayerColor(2));
+    }
     
     // 重新设置难度和游戏模式，确保应用用户的选择
     gameEngine.setDifficulty(document.getElementById('difficultySelect').value);
@@ -106,8 +133,6 @@ function hideOverlays() {
 
 // 键盘事件处理
 document.addEventListener('keydown', function(e) {
-    // ESC键和空格键的处理已经移到InputHandler.js中
-    // 这里不再重复处理
 });
 
 // 防止页面滚动
@@ -119,5 +144,4 @@ document.addEventListener('keydown', function(e) {
 
 // 窗口大小改变时调整画布
 window.addEventListener('resize', function() {
-    // 可以在这里添加响应式调整逻辑
 });
