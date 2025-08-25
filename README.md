@@ -105,20 +105,33 @@
 ```
 . 
 ├── index.html          # 游戏主页面，包含UI和Canvas元素
-├── styles.css          # 游戏界面样式
+├── css\
+    ├── main.css        # 主CSS文件，导入所有样式模块
+    ├── bases\          # 基础样式文件
+    │   ├── base.css           # 基础重置和全局样式
+    │   ├── background.css     # 科幻背景样式
+    │   ├── components.css     # 通用容器和标题样式
+    │   ├── buttons.css        # 按钮基础样式
+    │   └── forms.css          # 表单和下拉选择器样式
+    └── pages\          # 页面特殊样式文件
+        ├── color-picker.css   # 颜色选择器页面样式
+        ├── rules.css          # 游戏说明页面样式
+        ├── games.css          # 游戏页面样式
+        ├── game-ui.css        # 游戏UI元素样式
+        └── overlays.css       # 覆盖层和弹窗样式
 ├── js\
     ├── Config.js       # 游戏配置文件，包含各种参数设置
-    ├── core\
+    ├── core\           # 游戏核心模块
     │   ├── GameEngine.js       # 游戏核心逻辑，包括物理更新、渲染循环
     │   ├── InputHandler.js     # 处理用户输入，如键盘事件
     │   ├── Renderer.js         # 渲染器，负责游戏元素的绘制
     │   └── main.js             # 游戏初始化和主要流程控制
-    ├── objects\
+    ├── objects\        # 游戏对象模块
     │   ├── Player.js           # 玩家角色逻辑，包括移动、轨迹、碰撞检测等
     │   ├── Territory.js        # 领地管理，处理领地的圈占和判断
     │   ├── ItemManager.js      # 道具管理，包括生成和应用道具效果
     │   └── UIManager.js        # UI管理器，负责更新游戏界面信息
-    └── modes\
+    └── modes\           # 游戏模式模块
         ├── Survive.js          # 生存模式的处理模块，包括AI设置等
         └── Flag.js             # 夺旗模式的处理模块，包括旗帜的生成等
 ```
