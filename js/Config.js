@@ -18,7 +18,8 @@ class Config {
             fight: 3,
             infinite: 2,
             survival: 3,
-            capture: 1
+            capture: 1,
+            daynight: 3
         },
         standarddistance: 2, // 轨迹插值距离
         pushdistance: 6, // 碰撞反弹距离
@@ -95,7 +96,8 @@ class Config {
         fight: { lives: 3 },
         infinite: { lives: 2 },
         survival: { lives: 3 },
-        capture: { lives: 1 }
+        capture: { lives: 1 },
+        daynight: { lives: 3 }
     };
 
     // 物理帧相关设置

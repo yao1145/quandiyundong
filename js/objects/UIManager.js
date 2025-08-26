@@ -16,8 +16,8 @@ class UIManager {
             }
         });
 
-        // 更新生命值显示（仅在fight模式下显示）
-        if (this.gameEngine.gameMode === 'fight' || this.gameEngine.gameMode === 'survival') {
+        // 更新生命值显示（仅在fight、survival和daynight模式下显示）
+        if (this.gameEngine.gameMode === 'fight' || this.gameEngine.gameMode === 'survival' || this.gameEngine.gameMode === 'daynight') {
             this.gameEngine.players.forEach(player => {
                 const livesElement = document.getElementById(`player${player.id}Lives`);
                 const livesCountElement = document.getElementById(`player${player.id}LivesCount`);
@@ -101,7 +101,7 @@ class UIManager {
                 }
             });
         }
-        
+
         // 更新夺旗模式回家倒计时显示（仅在capture模式下显示）
         if (this.gameEngine.gameMode === 'capture') {
             this.gameEngine.players.forEach(player => {
@@ -128,6 +128,51 @@ class UIManager {
             });
         }
 
+        // 更新昼夜时间显示（仅在daynight模式下显示）
+        if (this.gameEngine.gameMode === 'daynight') {
+            const dayTimeElement = document.getElementById('dayTimeDisplay');
+            const nightTimeElement = document.getElementById('nightTimeDisplay');
+
+            if (dayTimeElement && nightTimeElement && this.gameEngine.dayNightManager) {
+                const dayTimeRemaining = this.gameEngine.dayNightManager.getDayTimeRemaining();
+                const nightTimeRemaining = this.gameEngine.dayNightManager.getNightTimeRemaining();
+
+                // 当白天剩余时间大于等于0时显示白天UI，否则隐藏
+                if (dayTimeRemaining >= 0) {
+                    dayTimeElement.textContent = `白天: ${Math.floor(dayTimeRemaining)}s`;
+                    dayTimeElement.classList.add('active');
+                    dayTimeElement.style.display = 'block';
+                } else {
+                    dayTimeElement.classList.remove('active');
+                    dayTimeElement.style.display = 'none';
+                }
+
+                // 当夜晚剩余时间大于等于0时显示夜晚UI，否则隐藏
+                if (nightTimeRemaining >= 0) {
+                    nightTimeElement.textContent = `夜晚: ${Math.floor(nightTimeRemaining)}s`;
+                    nightTimeElement.classList.add('active');
+                    nightTimeElement.style.display = 'block';
+                } else {
+                    nightTimeElement.classList.remove('active');
+                    nightTimeElement.style.display = 'none';
+                }
+            }
+        } else {
+            // 在其他模式下隐藏昼夜时间显示
+            const dayTimeElement = document.getElementById('dayTimeDisplay');
+            const nightTimeElement = document.getElementById('nightTimeDisplay');
+
+            if (dayTimeElement) {
+                dayTimeElement.classList.remove('active');
+                dayTimeElement.style.display = 'none';
+            }
+
+            if (nightTimeElement) {
+                nightTimeElement.classList.remove('active');
+                nightTimeElement.style.display = 'none';
+            }
+        }
+
         // 更新游戏状态
         const statusElement = document.getElementById('gameStatus');
         if (statusElement) {
@@ -152,6 +197,16 @@ class UIManager {
                 else if (this.gameEngine.gameMode === 'capture') {
                     const flagCounts = this.gameEngine.flagManager.getFlagCounts();
                     statusElement.textContent = `夺旗模式 - P1旗帜:${flagCounts[1]} P2旗帜:${flagCounts[2]} - 剩余时间: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+                else if (this.gameEngine.gameMode === 'daynight') {
+                    const dayNightPhase = this.gameEngine.dayNightManager.getCurrentPhase();
+                    const phaseText = {
+                        'day': '白天',
+                        'night': '夜晚',
+                        'fadeToNight': '渐变夜晚',
+                        'fadeToDay': '渐变白天'
+                    }[dayNightPhase] || '未知';
+                    statusElement.textContent = `昼夜模式 - 当前阶段:${phaseText} - 剩余时间: ${minutes}:${seconds.toString().padStart(2, '0')}`;
                 }
             }
         }

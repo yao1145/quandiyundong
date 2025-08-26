@@ -474,7 +474,8 @@ class Player {
             if (gameEngine.gameMode === 'infinite') {
                 this.lives = 2;
                 this.diereset(this.startX, this.startY);
-            } else if (gameEngine.gameMode === 'fight' || gameEngine.gameMode === 'survival') {
+            } else if (gameEngine.gameMode === 'fight' || gameEngine.gameMode === 'survival' || gameEngine.gameMode === 'daynight') {
+
                 this.diereset(this.startX, this.startY);
             } else {
                 this.isAlive = false;

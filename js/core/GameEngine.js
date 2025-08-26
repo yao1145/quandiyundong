@@ -45,6 +45,7 @@ class GameEngine {
         // 其他相关
         this.flagManager = new FlagManager(this.width, this.height);
         this.survivalManager = new SurvivalManager(this.width, this.height);
+        this.dayNightManager = new DayNightManager(this.width, this.height);
         this.uiUpdater = new UIManager(this);
     }
 
@@ -114,6 +115,8 @@ class GameEngine {
             this.survivalManager.setDifficulty(this.difficulty);
         } else if (mode === 'capture') {
             this.flagManager.init();
+        } else if (mode === 'daynight') {
+            this.dayNightManager.init();
         }
         this.staticNeedsUpdate = true; // 模式改变时需要更新静态元素
     }
@@ -171,6 +174,16 @@ class GameEngine {
         // 重置领土
         this.territory.reset();
         this.itemManager.reset();
+        
+        // 重置模式特定的管理器
+        if (this.gameMode === 'survival' && this.survivalManager) {
+            this.survivalManager.reset();
+        } else if (this.gameMode === 'capture' && this.flagManager) {
+            this.flagManager.init();
+        } else if (this.gameMode === 'daynight' && this.dayNightManager) {
+            this.dayNightManager.reset();
+        }
+        
         this.timer = 0;
         
         // 清空领土离屏画布
@@ -252,6 +265,8 @@ class GameEngine {
             this.survivalManager.update(deltaTime, this.players, this.territory);
         } else if (this.gameMode === 'capture') {
             this.flagManager.update(this.territory, this.players);
+        } else if (this.gameMode === 'daynight' && this.dayNightManager) {
+            this.dayNightManager.update(deltaTime);
         }
 
         // 更新道具系统
@@ -318,7 +333,7 @@ class GameEngine {
                         player.die('与玩家头部碰撞');
                         otherPlayer.die('与玩家头部碰撞');
                         break;
-                    } else if (this.gameMode === 'fight' || this.gameMode === 'infinite') {
+                    } else if (this.gameMode === 'fight' || this.gameMode === 'infinite' || this.gameMode === 'daynight') {
                         otherPlayer.die('与玩家头部碰撞');
                         player.die('与玩家头部碰撞');
                         break;
@@ -327,7 +342,7 @@ class GameEngine {
                     if (this.gameMode === 'explore') {
                         player.die('碰撞到玩家轨迹');
                         break
-                    } else if (this.gameMode === 'fight' || this.gameMode === 'infinite') {
+                    } else if (this.gameMode === 'fight' || this.gameMode === 'infinite' || this.gameMode === 'daynight') {
                         otherPlayer.die('碰撞到玩家轨迹');
                         break;
                     }
@@ -436,6 +451,11 @@ class GameEngine {
         // 更新UI（每帧都更新，因为包含实时信息）
         if (this.uiUpdater) {
             this.uiUpdater.updateUI();
+        }
+
+        // 渲染昼夜循环效果（最上层）
+        if (this.gameMode === 'daynight' && this.dayNightManager) {
+            this.dayNightManager.render(this.ctx);
         }
     }
 

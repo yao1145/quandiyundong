@@ -154,3 +154,62 @@
         transform: scale(1);
     }
 }
+
+/* 昼夜时间显示样式 */
+.daytime-countdown {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    display: none;
+    z-index: 1000;
+    border: 2px solid #ffd700;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.daytime-countdown.bottom-left {
+    bottom: -40px;
+    left: 320px;
+}
+
+.nighttime-countdown {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(25, 25, 112, 0.9), rgba(0, 0, 139, 0.9));
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    display: none;
+    z-index: 1000;
+    border: 2px solid #4169e1;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.nighttime-countdown.bottom-right {
+    bottom: -40px;
+    right: 320px;
+}
+
+.daytime-countdown.active, .nighttime-countdown.active {
+    display: block;
+    animation: dayNightPulse 2s infinite ease-in-out;
+}
+
+@keyframes dayNightPulse {
+    0% { 
+        transform: scale(1);
+        opacity: 0.9;
+    }
+    50% { 
+        transform: scale(1.02);
+        opacity: 1;
+    }
+    100% { 
+        transform: scale(1);
+        opacity: 0.9;
+    }
+}

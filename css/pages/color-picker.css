@@ -31,11 +31,15 @@
 .player-color-section[data-player="1"] h3 {
     color: #ff6b6b;
     text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+    margin-bottom: 8px;
+    font-size: 1.4em;
 }
 
 .player-color-section[data-player="2"] h3 {
     color: #4ecdc4;
     text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+    margin-bottom: 8px;
+    font-size: 1.4em;
 }
 
 .color-picker {
@@ -82,6 +86,7 @@
     gap: 10px;
     color: #a0c4ff;
     font-size: 0.9em;
+    letter-spacing: 0.5px;
 }
 
 .color-sliders input[type="range"] {
@@ -127,6 +132,7 @@
     color: #a0c4ff;
     font-size: 0.9em;
     min-width: 100px;
+    letter-spacing: 0.5px;
 }
 
 .harmony-bar {

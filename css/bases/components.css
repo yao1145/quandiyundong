@@ -92,16 +92,7 @@
     color: #64c8ff;
     text-align: center;
     text-shadow: 0 0 10px rgba(100, 200, 255, 0.5);
-}
-
-.rules-container h2 {
     margin-bottom: 30px;
     font-size: clamp(1.5em, 4vw, 2em);
 }
 
-.color-selection-container h2 {
-    font-size: clamp(1.8em, 4.5vw, 2.3em);
-    text-shadow: 0 0 15px rgba(100, 200, 255, 0.7);
-    margin: 30px 0 20px 0;
-    flex-shrink: 0;
-}
