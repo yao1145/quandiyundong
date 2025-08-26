@@ -44,6 +44,15 @@ class Config {
         color: '#FFD700'
     }
 
+    static DAYNIGHT = {
+        darkness: 0.98,
+        fadeTime: 5000,
+        darkTime: 10000,
+        cycleTime: 20000,
+        initialTime: 10000
+    }
+
+
 
     // 按键控制映射
     static KEY_BINDINGS = {
